@@ -1,0 +1,152 @@
+openapi: 3.0.1
+info:
+  title: API States
+  description: API States, API proposta na avaliação da Sprint 3. Lista estados com ou sem filtros (regiao, populacao e area).
+  version: 1.0.0
+  contact:
+    name: Wesley Schwartz
+    url: https://github.com/wesleyschwartz/prova-sprint-3
+
+servers:
+  - url: http://localhost:8080/api
+
+paths:
+  /states:
+
+    post:
+      summary: Adiciona um novo estado a lista
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/Estado'
+      responses:
+        '201':
+          $ref: '#/components/responses/Sucesso'
+
+    get:
+
+      summary: Busca todos os estados ou filtra por região, maior população ou maior área
+
+      parameters:
+        - in: query
+          name: regiao
+          schema:
+            type: string
+          required: false
+          description: Filtra todos estados de acordo com a região. regiao=? | Norte, Nordeste, Sul, Sudeste, Centro_Oeste.
+
+        - in: query
+          name: filtro
+          schema:
+            type: string
+          required: false
+          description: Ordena estados pelo número de população ou pela sua área, em ordem decrescente, filtro=populacao || filtro=area.
+      responses:
+        '201':
+          $ref: '#/components/responses/SucessoLista'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+
+  /states/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: long
+        required: true
+    get:
+      summary: busca um estado de acordo com o id informado
+      responses:
+        '200':
+          $ref: '#/components/responses/Sucesso'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Remove um estado cadastrado
+      responses:
+        '200':
+          $ref: '#/components/responses/Sucesso'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Altera um estado cadastrado
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/Estado'
+      responses:
+        '200':
+          $ref: '#/components/responses/Sucesso'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+security:
+  - autentication: [ ]
+components:
+  schemas:
+    Estado:
+      type: object
+      properties:
+        id:
+          type: long
+        nome:
+          type: string
+        regiao:
+          type: string
+          enum:
+            - Centro_Oeste
+            - Nordeste
+            - Norte
+            - Sudeste
+            - Sul
+        populacao:
+          type: long
+        capital:
+          type: string
+        area:
+          type: long
+
+    ListaEstados:
+      type: array
+      items:
+        $ref: '#/components/schemas/Estado'
+
+  responses:
+    BadRequest:
+      description: Parâmetro(s) Inválido(s)
+      content:
+        application/json:
+          example: Parâmetro(s) Inválido(s)
+
+    SucessoLista:
+      description: Sucesso
+      content:
+        application/json:
+          schema:
+            items:
+              $ref: '#/components/schemas/ListaEstados'
+    Sucesso:
+      description: Sucesso
+      content:
+        application/json:
+          schema:
+            items:
+              $ref: '#/components/schemas/Estado'
+    NotFound:
+      description: ID não encontrada
+      content:
+        application/json:
+          example: Not Found
+
+  securitySchemes:
+    autentication:
+      type: http
+      scheme: basic
